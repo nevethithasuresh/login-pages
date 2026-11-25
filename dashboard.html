@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | AuthVault - Step 3 (Protected)</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- IMMEDIATE AUTHENTICATION PROTECTION CHECK -->
+    <script>
+        const initialToken = localStorage.getItem("authToken");
+        if (!initialToken) {
+            // Block unregistered / unauthenticated users immediately
+            window.location.replace("/login?error=unauthorized");
+        }
+    </script>
+</head>
+<body>
+    <div class="ambient-glow glow-top"></div>
+    <div class="ambient-glow glow-bottom"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+            <div class="brand-text">
+                <span class="brand-title">Auth<span class="gradient-text">Vault</span></span>
+                <span class="brand-sub">MongoDB Compass</span>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <!-- User Profile Pill in Navbar -->
+            <div class="nav-user-pill">
+                <div class="nav-avatar" id="navAvatar">U</div>
+                <div class="nav-user-info">
+                    <span class="nav-name" id="navName">Loading...</span>
+                    <span class="nav-email" id="navEmail">...</span>
+                </div>
+            </div>
+
+            <!-- Sign Out Button -->
+            <button class="btn-logout" id="logoutBtn" title="Sign out of account">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <!-- Visual Flow Stepper -->
+        <div class="flow-stepper">
+            <div class="step-item completed">
+                <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                <div class="step-meta">
+                    <span class="step-title">Step 1: Register</span>
+                    <span class="step-sub">Created Account</span>
+                </div>
+            </div>
+            <div class="step-connector active"></div>
+            <div class="step-item completed">
+                <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                <div class="step-meta">
+                    <span class="step-title">Step 2: Login</span>
+                    <span class="step-sub">Authenticated</span>
+                </div>
+            </div>
+            <div class="step-connector active"></div>
+            <div class="step-item active">
+                <div class="step-circle"><i class="fa-solid fa-unlock-keyhole"></i></div>
+                <div class="step-meta">
+                    <span class="step-title">Step 3: Dashboard</span>
+                    <span class="step-sub">Unlocked & Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard User Welcome Banner -->
+        <section class="dashboard-hero-card">
+            <div class="hero-left">
+                <div class="large-avatar" id="largeAvatar">U</div>
+                <div>
+                    <div class="badge-verified">
+                        <i class="fa-solid fa-shield-check"></i>
+                        <span>Authenticated Session Active</span>
+                    </div>
+                    <h1 id="welcomeHeading">Welcome to Your Dashboard!</h1>
+                    <p class="hero-subtext">You have successfully authenticated. Only registered users who log in can access this page.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Overview Cards -->
+        <div class="dashboard-grid">
+            <div class="dash-stat-card">
+                <div class="dash-stat-icon" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div>
+                    <span class="dash-stat-label">Your Registered Email</span>
+                    <strong class="dash-stat-val" id="userEmailDisplay">...</strong>
+                </div>
+            </div>
+
+            <div class="dash-stat-card">
+                <div class="dash-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                    <i class="fa-solid fa-database"></i>
+                </div>
+                <div>
+                    <span class="dash-stat-label">Stored in MongoDB Compass</span>
+                    <strong class="dash-stat-val">auth_db &rarr; users</strong>
+                </div>
+            </div>
+
+            <div class="dash-stat-card">
+                <div class="dash-stat-icon" style="background: rgba(244, 63, 94, 0.15); color: #fb7185;">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <span class="dash-stat-label">Password Protection</span>
+                    <strong class="dash-stat-val">Bcrypt Hashed (256-bit)</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Compass Output & Stored Documents Table -->
+        <section class="output-card">
+            <div class="output-header">
+                <div class="output-title-group">
+                    <div class="compass-badge">
+                        <i class="fa-solid fa-cubes"></i>
+                    </div>
+                    <div>
+                        <h3>MongoDB Compass Database Output</h3>
+                        <p>Live collection data from local MongoDB (<code>mongodb://127.0.0.1:27017/auth_db</code> &rarr; <code>users</code>)</p>
+                    </div>
+                </div>
+                <div class="output-header-controls">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchUserInput" placeholder="Search by email or name...">
+                    </div>
+                    <button class="btn-refresh" id="refreshUsersBtn">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Refresh Data</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="connection-meta-bar">
+                <div class="meta-item"><i class="fa-solid fa-plug"></i> URI: <span>mongodb://127.0.0.1:27017</span></div>
+                <div class="meta-item"><i class="fa-solid fa-database"></i> Database: <span>auth_db</span></div>
+                <div class="meta-item"><i class="fa-solid fa-folder-open"></i> Collection: <span>users</span></div>
+                <div class="meta-item"><i class="fa-solid fa-users"></i> Total Documents: <strong id="totalCountDisplay">0</strong></div>
+            </div>
+
+            <div class="output-table-container">
+                <table class="compass-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Full Name</th>
+                            <th>Registered Email</th>
+                            <th>Stored Password (Hash)</th>
+                            <th>Created At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Populated by script -->
+                    </tbody>
+                </table>
+
+                <div class="empty-state hidden" id="emptyState">
+                    <i class="fa-solid fa-inbox"></i>
+                    <h4>No Documents Found</h4>
+                    <p>No user records stored in MongoDB Compass yet.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const API_BASE = "/api/auth";
+        const token = localStorage.getItem("authToken");
+
+        let cachedUsers = [];
+
+        // DOM elements
+        const navAvatar = document.getElementById("navAvatar");
+        const navName = document.getElementById("navName");
+        const navEmail = document.getElementById("navEmail");
+        const largeAvatar = document.getElementById("largeAvatar");
+        const welcomeHeading = document.getElementById("welcomeHeading");
+        const userEmailDisplay = document.getElementById("userEmailDisplay");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const usersTable = document.getElementById("usersTable");
+        const usersTableBody = document.getElementById("usersTableBody");
+        const emptyState = document.getElementById("emptyState");
+        const totalCountDisplay = document.getElementById("totalCountDisplay");
+        const refreshUsersBtn = document.getElementById("refreshUsersBtn");
+        const searchUserInput = document.getElementById("searchUserInput");
+
+        // VERIFY PROTECTED SESSION WITH BACKEND
+        async function verifyAuthAndLoad() {
+            try {
+                const res = await fetch(`${API_BASE}/me`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Invalid session");
+                }
+
+                const data = await res.json();
+                const user = data.user;
+
+                // Render user profile
+                const initial = (user.name ? user.name[0] : "U").toUpperCase();
+                if (user.avatar) {
+                    navAvatar.innerHTML = `<img src="${user.avatar}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                    largeAvatar.innerHTML = `<img src="${user.avatar}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                } else {
+                    navAvatar.textContent = initial;
+                    largeAvatar.textContent = initial;
+                }
+
+                navName.textContent = user.name;
+                navEmail.textContent = user.email;
+                welcomeHeading.textContent = `Welcome, ${user.name}!`;
+                userEmailDisplay.textContent = user.email;
+
+                if (user.authProvider === "google") {
+                    const badgeVerified = document.querySelector(".badge-verified");
+                    if (badgeVerified) {
+                        badgeVerified.innerHTML = `<i class="fa-brands fa-google" style="color:#4285f4;"></i><span>Google OAuth Verified Session</span>`;
+                    }
+                }
+
+                // Load database records
+                loadCompassRecords();
+
+            } catch (err) {
+                // Not authenticated or token expired - clear and redirect to login
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("authUser");
+                window.location.replace("/login?error=expired");
+            }
+        }
+
+        // Fetch registered documents from MongoDB Compass
+        async function loadCompassRecords() {
+            const icon = refreshUsersBtn.querySelector("i");
+            if (icon) icon.classList.add("fa-spin");
+
+            try {
+                const res = await fetch(`${API_BASE}/users`);
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.users)) {
+                    cachedUsers = data.users;
+                    renderTable(cachedUsers);
+                    totalCountDisplay.textContent = cachedUsers.length;
+                }
+            } catch (err) {
+                showToast("Failed to fetch MongoDB Compass records: " + err.message, "error");
+            } finally {
+                if (icon) icon.classList.remove("fa-spin");
+            }
+        }
+
+        function renderTable(users) {
+            usersTableBody.innerHTML = "";
+
+            if (!users || users.length === 0) {
+                usersTable.classList.add("hidden");
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            usersTable.classList.remove("hidden");
+            emptyState.classList.add("hidden");
+
+            users.forEach((u, i) => {
+                const tr = document.createElement("tr");
+                const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "N/A";
+                
+                // Highlight current user
+                const isCurrentUser = u.email === navEmail.textContent;
+
+                const isGoogle = u.authProvider === "google";
+                const avatarImg = u.avatar ? `<img src="${u.avatar}" class="user-table-avatar" alt="User">` : `<i class="fa-regular fa-user" style="color:var(--text-muted); margin-right:6px;"></i>`;
+
+                tr.innerHTML = `
+                    <td><strong>#${i + 1}</strong></td>
+                    <td>
+                        ${avatarImg}
+                        <strong>${escapeHtml(u.name)}</strong>
+                        ${isGoogle ? '<span class="google-badge"><i class="fa-brands fa-google"></i> Google</span>' : ''}
+                        ${isCurrentUser ? '<span class="current-user-badge">You</span>' : ''}
+                    </td>
+                    <td class="email-cell"><i class="fa-regular fa-envelope" style="margin-right:6px;"></i>${escapeHtml(u.email)}</td>
+                    <td>
+                        <span class="hash-badge" title="${isGoogle ? 'Verified by Google OAuth' : 'Stored Bcrypt Hash in MongoDB Compass'}">
+                            <i class="${isGoogle ? 'fa-brands fa-google' : 'fa-solid fa-key'}" style="color:${isGoogle ? '#4285f4' : '#a855f7'};"></i>
+                            <code>${escapeHtml(u.passwordHash)}</code>
+                        </span>
+                    </td>
+                    <td style="color:var(--text-secondary); font-size:12px;">${dateStr}</td>
+                    <td>
+                        <button class="btn-delete-user" data-id="${u.id}" title="Delete document from MongoDB Compass">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+
+                usersTableBody.appendChild(tr);
+            });
+
+            // Delete handler
+            document.querySelectorAll(".btn-delete-user").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    const id = btn.getAttribute("data-id");
+                    if (!confirm("Are you sure you want to delete this document from MongoDB Compass?")) return;
+
+                    try {
+                        const res = await fetch(`${API_BASE}/users/${id}`, { method: "DELETE" });
+                        const resData = await res.json();
+                        if (resData.success) {
+                            showToast(resData.message, "success");
+                            loadCompassRecords();
+                        } else {
+                            showToast(resData.message, "error");
+                        }
+                    } catch (e) {
+                        showToast("Error deleting: " + e.message, "error");
+                    }
+                });
+            });
+        }
+
+        // Search filter
+        searchUserInput.addEventListener("input", (e) => {
+            const q = e.target.value.toLowerCase().trim();
+            if (!q) {
+                renderTable(cachedUsers);
+                return;
+            }
+            const filtered = cachedUsers.filter(u => 
+                (u.name && u.name.toLowerCase().includes(q)) || 
+                (u.email && u.email.toLowerCase().includes(q))
+            );
+            renderTable(filtered);
+        });
+
+        refreshUsersBtn.addEventListener("click", () => {
+            loadCompassRecords();
+            showToast("Synced with MongoDB Compass", "info");
+        });
+
+        // Logout
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("authUser");
+            window.location.href = "/login?loggedout=true";
+        });
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            let icon = type === "success" ? "fa-circle-check" : (type === "error" ? "fa-circle-xmark" : "fa-circle-info");
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateX(100%)";
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize verification
+        verifyAuthAndLoad();
+    </script>
+</body>
+</html>
